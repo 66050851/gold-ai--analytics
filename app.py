@@ -4,14 +4,36 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+
+# 1. ต้องตั้งค่า page_config ไว้เป็นคำสั่ง Streamlit บรรทัดแรกสุดเสมอ
+st.set_page_config(
+    page_title="Gold Analytics",
+    page_icon="G",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# 2. นำเข้าไฟล์ระบบยืนยันตัวตน
 import firebase_auth
 
-# เรียกใช้งานระบบ Login จาก firebase_auth
-user = firebase_auth.login_page()
+# ตรวจสอบและเรียกใช้งานฟังก์ชัน Login ที่มีใน firebase_auth.py
+user = None
+if hasattr(firebase_auth, 'login_page'):
+    user = firebase_auth.login_page()
+elif hasattr(firebase_auth, 'show_login'):
+    user = firebase_auth.show_login()
+elif hasattr(firebase_auth, 'render_login'):
+    user = firebase_auth.render_login()
+elif hasattr(firebase_auth, 'auth_ui'):
+    user = firebase_auth.auth_ui()
+elif hasattr(firebase_auth, 'main'):
+    user = firebase_auth.main()
 
-# หากยังไม่ได้ Login ให้หยุดการทำงาน ไม่แสดงเนื้อหาแดชบอร์ดด้านล่าง
+# หากยังไม่ได้ Login ให้หยุดการทำงานตรงนี้ ไม่แสดงเนื้อหาแดชบอร์ด
 if not user:
     st.stop()
+
+# 3. นำเข้าบริการอื่นๆ และทำงานต่อตามปกติ
 from gold_service import get_gold_spot, get_gold_history
 from stats_service import calculate_statistics
 from ai_service import ask_gold_ai
