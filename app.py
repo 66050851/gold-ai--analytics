@@ -4,7 +4,14 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import firebase_auth
 
+# เรียกใช้งานระบบ Login จาก firebase_auth
+user = firebase_auth.login_page()
+
+# หากยังไม่ได้ Login ให้หยุดการทำงาน ไม่แสดงเนื้อหาแดชบอร์ดด้านล่าง
+if not user:
+    st.stop()
 from gold_service import get_gold_spot, get_gold_history
 from stats_service import calculate_statistics
 from ai_service import ask_gold_ai
